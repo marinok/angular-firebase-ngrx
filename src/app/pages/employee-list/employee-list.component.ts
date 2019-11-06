@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subscription, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Employee } from '../../models/user';
+import { Employee } from '../../models/employee';
 
 
 @Component({
@@ -10,26 +10,39 @@ import { Employee } from '../../models/user';
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.less']
 })
-export class EmployeeListComponent implements OnInit {
-  public users$: Observable<Employee[]>;
-  public users: Employee[];
-  public usersSubscription: Subscription;
+export class EmployeeListComponent implements OnInit, OnDestroy {
+  public employees$: Observable<Employee[]>;
+  public employees: Employee[];
+  public employeesSubscription: Subscription;
 
   constructor(private db: AngularFirestore) {
-    this.users$ = db.collection('users').valueChanges().pipe(map(data => {
+    /* this.employees$ = db.collection<Employee>('users').valueChanges().pipe(map(data => {
       return data.map(function (user: Employee) {
         return { name: user.name, email: user.email };
       });
+    })); */
+    this.employees$ = db.collection<Employee>('users').snapshotChanges().pipe(map(data => {
+      return data.map(function (value) {
+        return {
+          id: value.payload.doc.id,
+          name: value.payload.doc.get('name'),
+          email: value.payload.doc.get('email')
+        };
+      });
     }));
+    // console.log();
   }
 
   ngOnInit() {
-    this.usersSubscription = this.users$.subscribe(item => this.users = item);
+    this.employeesSubscription = this.employees$.subscribe(item => this.employees = item);
 
   }
+  ngOnDestroy() {
+    // this.employeeSubscription.unsubscribe();
+  }
 
-  public showUsers(): void {
-    console.log(this.users);
+  public showEmployee(): void {
+    console.log(this.employees);
   }
 
 }
