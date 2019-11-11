@@ -1,28 +1,29 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Subscription, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 
 import { Employee } from '../models/employee.model';
 
+
+export const toEntity = (data) => data.map( value => ({
+            id: value.payload.doc.id,
+            name: value.payload.doc.get('name'),
+            email: value.payload.doc.get('email')
+        })
+);
+
+
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {
-    public employees$: Observable<Employee[]>;
-    private employeeDoc: AngularFirestoreDocument<Employee>;
+    public employees$ = this.db.collection<Employee>('users').snapshotChanges().pipe(
+        map(toEntity)
+    );
 
     constructor(public db: AngularFirestore) {
-        this.employees$ = db.collection<Employee>('users').snapshotChanges().pipe(map(data => {
-            console.log(data);
-            return data.map(function (value) {
-                return {
-                    id: value.payload.doc.id,
-                    name: value.payload.doc.get('name'),
-                    email: value.payload.doc.get('email')
-                };
-            });
-        }));
+
     }
-    public getEmployee(employeeId: string): AngularFirestoreDocument<Employee> {
-        return this.db.doc<Employee>('users/' + employeeId);
+    public getEmployee(employeeId: string): Observable<Employee> {
+        return this.db.doc<Employee>('users/' + employeeId).valueChanges();
     }
 }

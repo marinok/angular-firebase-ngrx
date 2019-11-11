@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EmployeeService } from 'src/app/services/employee.service';
-import { map } from 'rxjs/operators';
+import {map, switchMap, tap} from 'rxjs/operators';
 import { Employee } from 'src/app/models/employee.model';
 
 @Component({
@@ -10,29 +10,18 @@ import { Employee } from 'src/app/models/employee.model';
   styleUrls: ['./employee.component.less']
 })
 export class EmployeeComponent implements OnInit {
-  public employee: Employee;
-  private employeeId: string;
+  public employee$ = this.route.params.pipe(
+      map(params => params.id),
+      tap(console.log),
+      switchMap(id => this.employeesService.getEmployee(id))
+  );
 
   constructor(private route: ActivatedRoute, private employeesService: EmployeeService) {
-    this.route.params.subscribe(params => {
-      if (params.employeeId) {
-        this.employeeId = params.employeeId;
-      }
-    });
+
   }
 
   ngOnInit() {
-    if (this.employeeId) {
-      this.employeesService.getEmployee(this.employeeId).valueChanges()
-        .pipe(map(data => {
-          return {
-            id: this.employeeId,
-            name: data.name,
-            email: data.email
-          };
-        }))
-        .subscribe(value => this.employee = value);
-    }
+
   }
 
 
