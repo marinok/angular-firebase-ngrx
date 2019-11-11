@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subscription, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Employee } from '../../models/employee';
-
+import { map, tap } from 'rxjs/operators';
+import { Employee } from '../../models/employee.model';
+import { EmployeeService } from 'src/app/services/employee.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -11,38 +11,23 @@ import { Employee } from '../../models/employee';
   styleUrls: ['./employee-list.component.less']
 })
 export class EmployeeListComponent implements OnInit, OnDestroy {
-  public employees$: Observable<Employee[]>;
-  public employees: Employee[];
   public employeesSubscription: Subscription;
+  public employees: Employee[] = [];
+  public employee: Employee;
+  public employeeObs: Observable<Employee>;
 
-  constructor(private db: AngularFirestore) {
-    /* this.employees$ = db.collection<Employee>('users').valueChanges().pipe(map(data => {
-      return data.map(function (user: Employee) {
-        return { name: user.name, email: user.email };
-      });
-    })); */
-    this.employees$ = db.collection<Employee>('users').snapshotChanges().pipe(map(data => {
-      return data.map(function (value) {
-        return {
-          id: value.payload.doc.id,
-          name: value.payload.doc.get('name'),
-          email: value.payload.doc.get('email')
-        };
-      });
-    }));
-    // console.log();
-  }
+  constructor(private employeesService: EmployeeService) { }
 
   ngOnInit() {
-    this.employeesSubscription = this.employees$.subscribe(item => this.employees = item);
-
+    this.employeesSubscription = this.employeesService.employees$.subscribe(data => {
+      console.log(this.employees, data);
+      this.employees = data;
+    });
   }
   ngOnDestroy() {
-    // this.employeeSubscription.unsubscribe();
+    this.employeesSubscription.unsubscribe();
   }
 
-  public showEmployee(): void {
-    console.log(this.employees);
-  }
+
 
 }

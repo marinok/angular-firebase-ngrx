@@ -1,0 +1,5 @@
+<p><a [routerLink]="'/employees'">Back to list</a></p>
+<div *ngIf="employee">
+    <h3>{{employee.name}}</h3>
+    {{employee | json}}
+</div>

@@ -1,6 +1,6 @@
 export interface Expense {
     displayName: string;
     creationDate: Date;
-    employee: string;
+    employeeId: string;
     amount: number;
 }
