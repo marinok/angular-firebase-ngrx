@@ -1,6 +1,6 @@
 export interface Expense {
-    displayName: string;
-    creationDate: Date;
+    name: string;
+    creationDate?: Date;
     employeeId: string;
     amount: number;
 }

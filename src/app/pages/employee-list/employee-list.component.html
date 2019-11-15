@@ -1,3 +1,6 @@
 <ul>
-  <li *ngFor="let user of employees$ | async; index as i;"><a [routerLink]="['/employee', user.id]">{{user.id}}</a></li>
+  <li *ngFor="let user of employees$ | async; index as i;">
+    <a [routerLink]="['/employee', user.id]">{{user.name}}</a>
+    {{defaultBalance}}
+  </li>
 </ul>

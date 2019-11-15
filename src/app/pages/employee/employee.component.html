@@ -1,5 +1,8 @@
 <p><a [routerLink]="'/employees'">Back to list</a></p>
-<div *ngIf="employee$ | async as employee">
+<div class="mt24" *ngIf="employee$ | async as employee">
     <h3>{{employee.name}}</h3>
-    {{employee | json}}
+    <div class="mt8">{{employee.email}}</div>
+    <div class="mt8">
+        {{ employee.expenseIds }}
+    </div>
 </div>
